@@ -1,223 +1,347 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Gamebetr\Cards;
 
-class Card
+use NumberFormatter;
+use OutOfBoundsException;
+
+/**
+ * Standard playing card implementation.
+ *
+ * @author Steven Wichers <me@stevenwichers.com>
+ */
+class Card implements CardInterface
 {
     /**
-     * Card numeric value
-     * @var int $value
+     * @var int The number of faces in a deck.
      */
-    protected $value;
+    protected const NUMBER_OF_FACES = 13;
 
     /**
-     * Card suits
-     * @var array $suits
+     * @var int The original value provided at creation.
      */
-    protected $suits = [
-        0 => 'clubs',
-        1 => 'diamonds',
-        2 => 'hearts',
-        3 => 'spades',
-    ];
+    protected $originalValue;
 
     /**
-     * Card names
-     * @var array $names
+     * @var int The card face.
      */
-    protected $names = [
-        -1 => 'joker',
-        0 => 'two',
-        1 => 'three',
-        2 => 'four',
-        3 => 'five',
-        4 => 'six',
-        5 => 'seven',
-        6 => 'eight',
-        7 => 'nine',
-        8 => 'ten',
-        9 => 'jack',
-        10 => 'queen',
-        11 => 'king',
-        12 => 'ace',
-    ];
+    protected $faceId;
 
     /**
-     * Class constructor
-     * @param int $value - card numeric value
+     * @var int The Card suit.
      */
-    public function __construct(int $value)
+    protected $suitId;
+
+    /**
+     * Card constructor.
+     *
+     * Defaults to creating Cards from a provable source.
+     *
+     * @param int $faceId
+     *   The Card face ID or a provable number when $suitId is TYPE_PROVABLE.
+     * @param int $suitId
+     *   The Card suit ID or the TYPE_PROVABLE flag.
+     */
+    public function __construct(int $faceId, int $suitId = self::TYPE_PROVABLE)
     {
-        $this->value = $value;
-    }
+        $this->originalValue = $faceId;
 
-    /**
-     * Static constructor
-     * @param int $value - card numeric value
-     * @return Card
-     */
-    public static function init(int $value) : Card
-    {
-        return new static($value);
-    }
-
-    /**
-     * Is this card a joker?
-     * @return bool
-     */
-    public function isJoker() : bool
-    {
-        return $this->value < 0;
-    }
-
-    /**
-     * Card suit
-     * @return int
-     */
-    public function suit() : int
-    {
-        $value = $this->value;
-        while ($value < 0) {
-            $value += 4;
+        if (self::TYPE_PROVABLE === $suitId) {
+            $suitId = $this->suitFromProvable($faceId);
+            $faceId = $this->faceFromProvable($faceId);
         }
-        return $value % 4;
+
+        if (!$this->isValidSuit($suitId)) {
+            throw new OutOfBoundsException(
+                sprintf('Invalid card suit (%d).', $suitId)
+            );
+        }
+
+        if (!$this->isValidFace($faceId)) {
+            throw new OutOfBoundsException(
+                sprintf('Card (%d) is out of range.', $faceId)
+            );
+        }
+
+        $this->faceId = $faceId;
+        $this->suitId = $suitId;
     }
 
     /**
-     * Suit name
-     * @return string
-     */
-    public function suitName() : string
-    {
-        return $this->suits[$this->suit()];
-    }
-
-    /**
-     * Card rank
+     * Calculate a suit from a provable roll.
+     *
+     * @param int $provableValue
+     *   The original provable value.
+     *
      * @return int
+     *   The suit ID to use.
      */
-    public function rank() : int
+    protected function suitFromProvable(int $provableValue): int
+    {
+        $number_of_suits = count($this->getSuitNames());
+
+        $suit_id = $provableValue % $number_of_suits;
+        if ($provableValue < 0) {
+            // If the original suit was 0 (CLUB) then that was correct.
+            // Otherwise, we need to adjust our math because the calculation
+            // gets reversed for negatives.
+            // -3, -2, -1, 0, 1, 2, 3
+            // Should be:
+            //  1,  2,  3, 0, 1, 2, 3
+            $suit_id = $suit_id === 0 ?
+                0 :
+                $number_of_suits + $provableValue % $number_of_suits;
+        }
+
+        return $suit_id;
+    }
+
+    /**
+     * Calculate a card face from a provable roll.
+     *
+     * @param int $provableValue
+     *   The original provable value.
+     *
+     * @return int
+     *   The face ID to use.
+     */
+    protected function faceFromProvable(int $provableValue): int
+    {
+        if ($provableValue < 0) {
+            return static::FACE_JOKER;
+        }
+        // Offset by 2 because $provableValue starts at 0, but cards start at 2.
+        return $provableValue / count($this->getSuitNames()) % static::NUMBER_OF_FACES + 2;
+    }
+
+    /**
+     * Validate that a suit exists with the given ID.
+     *
+     * @param int $suitId
+     *   The suit value to check for validity.
+     *
+     * @return bool
+     *   TRUE of this is a valid suit value.
+     */
+    protected function isValidSuit(int $suitId): bool
+    {
+        return in_array($suitId, array_keys($this->getSuitNames()));
+    }
+
+    /**
+     * Validate that a face exists with the given ID.
+     *
+     * @param int $faceId
+     *   The face value to check for validity.
+     *
+     * @return bool
+     *   TRUE if this is a valid card face.
+     */
+    protected function isValidFace($faceId): bool
+    {
+        return in_array($faceId, array_keys($this->getCardNames()));
+    }
+
+    /**
+     * Get a list of suit names.
+     *
+     * @return array
+     *   An array of suit names indexed by their IDs.
+     */
+    protected function getSuitNames(): array
+    {
+        return [
+            static::SUIT_SPADE => 'spades',
+            static::SUIT_HEART => 'hearts',
+            static::SUIT_CLUB => 'clubs',
+            static::SUIT_DIAMOND => 'diamonds',
+        ];
+    }
+
+    /**
+     * Get a list of card face names.
+     *
+     * @return array
+     *   An array of face names indexed by their IDs.
+     */
+    protected function getCardNames(): array
+    {
+        $names = [
+            static::FACE_JOKER => 'joker',
+            static::FACE_JACK => 'jack',
+            static::FACE_QUEEN => 'queen',
+            static::FACE_KING => 'king',
+            static::FACE_ACE => 'ace',
+        ];
+
+        $formatter = new NumberFormatter('en', NumberFormatter::SPELLOUT);
+        for ($i = 2; $i <= 10; $i++) {
+            $names[$i] = $formatter->format($i);
+        }
+
+        ksort($names);
+
+        return $names;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function init(int $faceId, int $suitId = self::TYPE_PROVABLE): Card
+    {
+        return new static($faceId, $suitId);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __toString(): string
+    {
+        return $this->fullName();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fullName(): string
+    {
+        return sprintf('%s of %s', $this->name(), $this->suitName());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function name(): string
+    {
+        return $this->getCardNames()[$this->faceId];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function suitName(): string
+    {
+        return $this->getSuitNames()[$this->suitId];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rankName(): string
+    {
+        return $this->name();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function value(): int
     {
         if ($this->isJoker()) {
-            return -1;
-        }
-        return $this->value / 4 % 13;
-    }
-
-    /**
-     * Rank name
-     * @return string
-     */
-    public function rankName() : string
-    {
-        return $this->names[$this->rank()];
-    }
-
-    /**
-     * Card value
-     * @return int
-     */
-    public function value() : int
-    {
-        $value = $this->rank() + 2;
-        if ($value == 1) {
-            // joker
             return 0;
-        }
-        if ($value == 14) {
-            // ace
+        } elseif ($this->isRoyalty()) {
+            return 10;
+        } elseif ($this->isAce()) {
             return 11;
         }
-        if ($value > 10) {
-            // face cards
-            return 10;
-        }
-        return $value;
+
+        return $this->faceId;
     }
 
     /**
-     * Card name
-     * @return string
+     * {@inheritdoc}
      */
-    public function name() : string
+    public function isJoker(): bool
     {
-        return $this->names[$this->rank()];
+        return $this->faceId === static::FACE_JOKER;
     }
 
     /**
-     * Full card name
-     * @return string
+     * {@inheritdoc}
      */
-    public function fullName() : string
+    public function isRoyalty(): bool
     {
-        return $this->names[$this->rank()] . ' of ' . $this->suits[$this->suit()];
+        return in_array(
+            $this->faceId,
+            [
+                static::FACE_JACK,
+                static::FACE_QUEEN,
+                static::FACE_KING,
+            ]
+        );
     }
 
     /**
-     * Greater than
-     * @param Card $card - card to compare against
-     * @param bool $useSuitValue - include suit value in ranking
-     * @return bool
+     * {@inheritdoc}
      */
-    public function greaterThan(Card $card, bool $useSuitValue = false) : bool
+    public function isAce(): bool
+    {
+        return $this->faceId === static::FACE_ACE;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function greaterThan(Card $card, bool $useSuitValue = false): bool
     {
         return $this->compare($card, $useSuitValue) == 1;
     }
 
     /**
-     * Less than
-     * @param Card $card - card to compare against
-     * @param bool $useSuitValue - include suit value in ranking
-     * @return bool
+     * {@inheritdoc}
      */
-    public function lessThan(Card $card, bool $useSuitValue = false) : bool
+    public function rank(): int
+    {
+        if ($this->isJoker()) {
+            return -1;
+        }
+
+        return $this->faceId - 2;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function suit(): int
+    {
+        return $this->suitId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function lessThan(Card $card, bool $useSuitValue = false): bool
     {
         return $this->compare($card, $useSuitValue) == -1;
     }
 
     /**
-     * Equal to
-     * @param Card $card - card to compare against
-     * @param bool $useSuitValue - include suit value in ranking
-     * @return bool
+     * {@inheritdoc}
      */
-    public function equalTo(Card $card, bool $useSuitValue = false) : bool
+    public function equalTo(Card $card, bool $useSuitValue = false): bool
     {
         return $this->compare($card, $useSuitValue) == 0;
     }
 
     /**
-     * Compare
-     * @param Card $card - card to compare against
-     * @param bool $useSuitValue - include suit value in ranking
-     * @return int -1 = less than, 0 = equals, 1 = greater than
+     * Compares a Card against this Card for equality.
+     *
+     * @param Card $card
+     *   The Card to compare against.
+     * @param bool $useSuitValue
+     *   TRUE to factor in suits when comparing equal Cards.
+     *
+     * @return int
+     *   -1 if the Card is less than, 0 if it is the same, or 1 if it is greater than.
      */
-    public function compare(Card $card, bool $useSuitValue = false) : int
+    protected function compare(Card $card, bool $useSuitValue = false): int
     {
-        if ($this->rank() == $card->rank()) {
-            if ($useSuitValue) {
-                if ($this->suit() == $card->suit()) {
-                    return 0;
-                }
-                if ($this->suit() < $card->suit()) {
-                    return -1;
-                }
-                return 1;
-            }
-            return 0;
+        $comp = $this->rank() <=> $card->rank();
+        if ($comp === 0 && $useSuitValue) {
+            return $this->suit() <=> $card->suit();
         }
-        if ($this->rank() < $card->rank()) {
-            return -1;
-        }
-        return 1;
+
+        return $comp;
     }
 
-    /**
-     * To string
-     * @return string
-     */
-    public function __toString() : string
-    {
-        return $this->fullName();
-    }
 }

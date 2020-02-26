@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Gamebetr\Cards;
 
@@ -93,17 +93,22 @@ class Deck
             array_push($this->dealtCards, $card);
             return $card;
         }
+        return null;
     }
 
     /**
      * Burn a card
-     * @return null
+     *
+     * @return Card|null
+     *   The burned card (if any).
      */
-    public function burn()
+    public function burn(): ?Card
     {
         if ($card = array_shift($this->remainingCards)) {
             array_push($this->burntCards, $card);
+            return $card;
         }
+        return null;
     }
 
     /**

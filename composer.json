@@ -5,14 +5,28 @@
         {
             "name": "Steve Harmeyer",
             "email": "sharmeyer@gamebetr.com"
+        },
+        {
+            "name": "Steven Wichers",
+            "email": "me@stevenwichers.com"
         }
     ],
     "require": {
-        "gamebetr/provable": "^1.0"
+        "gamebetr/provable": "^1.0",
+        "ext-intl": "*",
+        "php": ">=7.2"
     },
     "autoload": {
         "psr-4": {
             "Gamebetr\\Cards\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Gamebetr\\Cards\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5"
     }
 }
