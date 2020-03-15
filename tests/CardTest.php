@@ -406,4 +406,148 @@ class CardTest extends TestCase
         $this->assertFalse($card->isRoyalty(), 'Ace');
     }
 
+    /**
+     * @covers ::getOriginalFaceValue
+     */
+    public function testGetOriginalFaceValue() {
+        $card = new Card(1000, Card::TYPE_PROVABLE);
+        $this->assertEquals(1000, $card->getOriginalFaceValue());
+
+        $card = new Card(10, CardInterface::SUIT_CLUB);
+        $this->assertEquals(10, $card->getOriginalFaceValue());
+    }
+
+    /**
+     * @covers ::getProvable
+     */
+    public function testGetProvable() {
+        // A hardcoded list here so we're not duplicating the math we're trying to test.
+
+        $card = new Card(CardInterface::FACE_JOKER, CardInterface::SUIT_CLUB);
+        $this->assertEquals(-4, $card->getProvable());
+        $card = new Card(CardInterface::FACE_JOKER, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(-3, $card->getProvable());
+        $card = new Card(CardInterface::FACE_JOKER, CardInterface::SUIT_HEART);
+        $this->assertEquals(-2, $card->getProvable());
+        $card = new Card(CardInterface::FACE_JOKER, CardInterface::SUIT_SPADE);
+        $this->assertEquals(-1, $card->getProvable());
+
+        $card = new Card(2, CardInterface::SUIT_CLUB);
+        $this->assertEquals(0, $card->getProvable());
+        $card = new Card(2, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(1, $card->getProvable());
+        $card = new Card(2, CardInterface::SUIT_HEART);
+        $this->assertEquals(2, $card->getProvable());
+        $card = new Card(2, CardInterface::SUIT_SPADE);
+        $this->assertEquals(3, $card->getProvable());
+
+        $card = new Card(3, CardInterface::SUIT_CLUB);
+        $this->assertEquals(4, $card->getProvable());
+        $card = new Card(3, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(5, $card->getProvable());
+        $card = new Card(3, CardInterface::SUIT_HEART);
+        $this->assertEquals(6, $card->getProvable());
+        $card = new Card(3, CardInterface::SUIT_SPADE);
+        $this->assertEquals(7, $card->getProvable());
+
+        $card = new Card(4, CardInterface::SUIT_CLUB);
+        $this->assertEquals(8, $card->getProvable());
+        $card = new Card(4, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(9, $card->getProvable());
+        $card = new Card(4, CardInterface::SUIT_HEART);
+        $this->assertEquals(10, $card->getProvable());
+        $card = new Card(4, CardInterface::SUIT_SPADE);
+        $this->assertEquals(11, $card->getProvable());
+
+        $card = new Card(5, CardInterface::SUIT_CLUB);
+        $this->assertEquals(12, $card->getProvable());
+        $card = new Card(5, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(13, $card->getProvable());
+        $card = new Card(5, CardInterface::SUIT_HEART);
+        $this->assertEquals(14, $card->getProvable());
+        $card = new Card(5, CardInterface::SUIT_SPADE);
+        $this->assertEquals(15, $card->getProvable());
+
+        $card = new Card(6, CardInterface::SUIT_CLUB);
+        $this->assertEquals(16, $card->getProvable());
+        $card = new Card(6, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(17, $card->getProvable());
+        $card = new Card(6, CardInterface::SUIT_HEART);
+        $this->assertEquals(18, $card->getProvable());
+        $card = new Card(6, CardInterface::SUIT_SPADE);
+        $this->assertEquals(19, $card->getProvable());
+
+        $card = new Card(7, CardInterface::SUIT_CLUB);
+        $this->assertEquals(20, $card->getProvable());
+        $card = new Card(7, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(21, $card->getProvable());
+        $card = new Card(7, CardInterface::SUIT_HEART);
+        $this->assertEquals(22, $card->getProvable());
+        $card = new Card(7, CardInterface::SUIT_SPADE);
+        $this->assertEquals(23, $card->getProvable());
+
+        $card = new Card(8, CardInterface::SUIT_CLUB);
+        $this->assertEquals(24, $card->getProvable());
+        $card = new Card(8, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(25, $card->getProvable());
+        $card = new Card(8, CardInterface::SUIT_HEART);
+        $this->assertEquals(26, $card->getProvable());
+        $card = new Card(8, CardInterface::SUIT_SPADE);
+        $this->assertEquals(27, $card->getProvable());
+
+        $card = new Card(9, CardInterface::SUIT_CLUB);
+        $this->assertEquals(28, $card->getProvable());
+        $card = new Card(9, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(29, $card->getProvable());
+        $card = new Card(9, CardInterface::SUIT_HEART);
+        $this->assertEquals(30, $card->getProvable());
+        $card = new Card(9, CardInterface::SUIT_SPADE);
+        $this->assertEquals(31, $card->getProvable());
+
+        $card = new Card(10, CardInterface::SUIT_CLUB);
+        $this->assertEquals(32, $card->getProvable());
+        $card = new Card(10, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(33, $card->getProvable());
+        $card = new Card(10, CardInterface::SUIT_HEART);
+        $this->assertEquals(34, $card->getProvable());
+        $card = new Card(10, CardInterface::SUIT_SPADE);
+        $this->assertEquals(35, $card->getProvable());
+
+        $card = new Card(CardInterface::FACE_JACK, CardInterface::SUIT_CLUB);
+        $this->assertEquals(36, $card->getProvable());
+        $card = new Card(CardInterface::FACE_JACK, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(37, $card->getProvable());
+        $card = new Card(CardInterface::FACE_JACK, CardInterface::SUIT_HEART);
+        $this->assertEquals(38, $card->getProvable());
+        $card = new Card(CardInterface::FACE_JACK, CardInterface::SUIT_SPADE);
+        $this->assertEquals(39, $card->getProvable());
+
+        $card = new Card(CardInterface::FACE_QUEEN, CardInterface::SUIT_CLUB);
+        $this->assertEquals(40, $card->getProvable());
+        $card = new Card(CardInterface::FACE_QUEEN, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(41, $card->getProvable());
+        $card = new Card(CardInterface::FACE_QUEEN, CardInterface::SUIT_HEART);
+        $this->assertEquals(42, $card->getProvable());
+        $card = new Card(CardInterface::FACE_QUEEN, CardInterface::SUIT_SPADE);
+        $this->assertEquals(43, $card->getProvable());
+
+        $card = new Card(CardInterface::FACE_KING, CardInterface::SUIT_CLUB);
+        $this->assertEquals(44, $card->getProvable());
+        $card = new Card(CardInterface::FACE_KING, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(45, $card->getProvable());
+        $card = new Card(CardInterface::FACE_KING, CardInterface::SUIT_HEART);
+        $this->assertEquals(46, $card->getProvable());
+        $card = new Card(CardInterface::FACE_KING, CardInterface::SUIT_SPADE);
+        $this->assertEquals(47, $card->getProvable());
+
+        $card = new Card(CardInterface::FACE_ACE, CardInterface::SUIT_CLUB);
+        $this->assertEquals(48, $card->getProvable());
+        $card = new Card(CardInterface::FACE_ACE, CardInterface::SUIT_DIAMOND);
+        $this->assertEquals(49, $card->getProvable());
+        $card = new Card(CardInterface::FACE_ACE, CardInterface::SUIT_HEART);
+        $this->assertEquals(50, $card->getProvable());
+        $card = new Card(CardInterface::FACE_ACE, CardInterface::SUIT_SPADE);
+        $this->assertEquals(51, $card->getProvable());
+    }
+
 }

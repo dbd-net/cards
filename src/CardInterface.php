@@ -204,4 +204,20 @@ interface CardInterface
      */
     public function equalTo(Card $card, bool $useSuitValue = false): bool;
 
+    /**
+     * Get the original value that was passed in as the face.
+     *
+     * @return int
+     *   The original face value.
+     */
+    public function getOriginalFaceValue(): int;
+
+    /**
+     * Get the provable number that represents this card.
+     *
+     * @return int
+     *   The provable number that corresponds to this card.
+     */
+    public function getProvable(): int;
+
 }
