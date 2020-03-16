@@ -310,6 +310,28 @@ class Card implements CardInterface
     /**
      * {@inheritdoc}
      */
+    public function getOriginalFaceValue(): int {
+        return $this->originalValue;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getProvable(): int
+    {
+        $number_of_suits = count($this->getSuitNames());
+        // Jokers are just negatively indexed by their suit name.
+        if ($this->faceId < 0) {
+            return -$number_of_suits + $this->suitId;
+        }
+
+        // Adjust face values by -2 because provables start at 0 and not 2.
+        return ($this->faceId - 2) * $number_of_suits + $this->suitId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function lessThan(Card $card, bool $useSuitValue = false): bool
     {
         return $this->compare($card, $useSuitValue) == -1;
