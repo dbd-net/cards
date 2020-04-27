@@ -125,7 +125,7 @@ class Card implements CardInterface
      */
     protected function isValidSuit(int $suitId): bool
     {
-        return in_array($suitId, array_keys($this->getSuitNames()));
+        return array_key_exists($suitId, $this->getSuitNames());
     }
 
     /**
@@ -139,7 +139,7 @@ class Card implements CardInterface
      */
     protected function isValidFace($faceId): bool
     {
-        return in_array($faceId, array_keys($this->getCardNames()));
+        return array_key_exists($faceId, $this->getCardNames());
     }
 
     /**
@@ -267,7 +267,8 @@ class Card implements CardInterface
                 static::FACE_JACK,
                 static::FACE_QUEEN,
                 static::FACE_KING,
-            ]
+            ],
+            false
         );
     }
 
@@ -284,7 +285,7 @@ class Card implements CardInterface
      */
     public function greaterThan(Card $card, bool $useSuitValue = false): bool
     {
-        return $this->compare($card, $useSuitValue) == 1;
+        return $this->compare($card, $useSuitValue) === 1;
     }
 
     /**
@@ -334,7 +335,7 @@ class Card implements CardInterface
      */
     public function lessThan(Card $card, bool $useSuitValue = false): bool
     {
-        return $this->compare($card, $useSuitValue) == -1;
+        return $this->compare($card, $useSuitValue) === -1;
     }
 
     /**
@@ -342,7 +343,7 @@ class Card implements CardInterface
      */
     public function equalTo(Card $card, bool $useSuitValue = false): bool
     {
-        return $this->compare($card, $useSuitValue) == 0;
+        return $this->compare($card, $useSuitValue) === 0;
     }
 
     /**

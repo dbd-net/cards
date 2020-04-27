@@ -90,7 +90,7 @@ class Deck
     public function deal() : ?Card
     {
         if ($card = array_shift($this->remainingCards)) {
-            array_push($this->dealtCards, $card);
+            $this->dealtCards[] = $card;
             return $card;
         }
         return null;
@@ -105,7 +105,7 @@ class Deck
     public function burn(): ?Card
     {
         if ($card = array_shift($this->remainingCards)) {
-            array_push($this->burntCards, $card);
+            $this->burntCards[] = $card;
             return $card;
         }
         return null;
