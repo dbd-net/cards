@@ -8,31 +8,36 @@ class Deck
 {
     /**
      * Provable
-     * @var Provable $provable
+     *
+     * @var Provable
      */
     protected $provable;
 
     /**
      * Deck cards
-     * @var array $cards
+     *
+     * @var int[]
      */
     protected $cards = [];
 
     /**
      * Remaining deck cards
-     * @var array $remainingCards
+     *
+     * @var \Gamebetr\Cards\CardInterface[]
      */
     protected $remainingCards = [];
 
     /**
      * Dealt deck cards
-     * @var array $dealtCards
+     *
+     * @var \Gamebetr\Cards\CardInterface[]
      */
     protected $dealtCards = [];
 
     /**
      * Burnt deck cards
-     * @var array $burntCards
+     *
+     * @var \Gamebetr\Cards\CardInterface[]
      */
     protected $burntCards = [];
 
@@ -43,19 +48,48 @@ class Deck
      * @param int $deckCount - amount of card decks
      * @param bool $jokers - include jokers?
      */
-    public function __construct(
-        string $clientSeed = null,
-        string $serverSeed = null,
-        int $deckCount = 1,
-        bool $jokers = false
-    ) {
+    public function __construct(string $clientSeed = null, string $serverSeed = null, int $deckCount = 1, bool $jokers = false) {
         $start = $jokers ? $deckCount * -2 : 0;
         $range = range($start, ($deckCount * 52) - 1);
-        $this->provable = Provable::init($clientSeed, $serverSeed, min($range), max($range), 'shuffle');
+        $this->provable = $this->createProvable($clientSeed, $serverSeed, min($range), max($range), 'shuffle');
         $this->cards = $this->provable->results();
         foreach ($this->cards as $card) {
-            $this->remainingCards[] = Card::init($card);
+            $this->remainingCards[] = $this->getCardFromProvable($card);
         }
+    }
+
+    /**
+   * Get a Provable instance.
+   *
+   * @param string|null $clientSeed
+   *   The client seed.
+   * @param string|null $serverSeed
+   *   The server seed.
+   * @param int $min
+   *   The minimum value.
+   * @param int $max
+   *   The maximum value.
+   * @param string $type
+   *   The type of Provable.
+   *
+   * @return \Gamebetr\Provable\Provable
+   *   A Provable instance.
+   */
+    protected function createProvable(string $clientSeed = null, string $serverSeed = null, int $min = 0, int $max = 0, string $type = 'number') : Provable {
+        return Provable::init($clientSeed, $serverSeed, $min, $max, $type);
+    }
+
+    /**
+     * Get a Card from a provable number.
+     *
+     * @param int $provable
+     *   The provable number.
+     *
+     * @return \Gamebetr\Cards\CardInterface
+     *   A Card.
+     */
+    protected function getCardFromProvable(int $provable) : CardInterface {
+        return Card::init($provable);
     }
 
     /**
@@ -65,55 +99,40 @@ class Deck
      * @param int $deckCount - amount of card decks
      * @param bool $jokers - include jokers?
      */
-    public static function init(
-        string $clientSeed = null,
-        string $serverSeed = null,
-        int $deckCount = 1,
-        bool $jokers = false
-    ) : Deck {
+    public static function init(string $clientSeed = null, string $serverSeed = null, int $deckCount = 1, bool $jokers = false) : Deck {
         return new static($clientSeed, $serverSeed, $deckCount, $jokers);
     }
 
     /**
-     * Get provable
-     * @return Provable
-     */
-    public function getProvable() : Provable
-    {
-        return $this->provable;
-    }
-
-    /**
      * Deal a card
-     * @return Card|null
+     * @return CardInterface|null
      */
-    public function deal() : ?Card
+    public function deal() : ?CardInterface
     {
         if ($card = array_shift($this->remainingCards)) {
             $this->dealtCards[] = $card;
-            return $card;
         }
-        return null;
+        return $card ?? null;
     }
 
     /**
      * Burn a card
      *
-     * @return Card|null
+     * @return CardInterface|null
      *   The burned card (if any).
      */
-    public function burn(): ?Card
+    public function burn(): ?CardInterface
     {
         if ($card = array_shift($this->remainingCards)) {
             $this->burntCards[] = $card;
-            return $card;
         }
-        return null;
+        return $card ?? null;
     }
 
     /**
      * Get original cards
-     * @return array
+     *
+     * @return int[]
      */
     public function getCards() : array
     {
@@ -122,7 +141,8 @@ class Deck
 
     /**
      * Get remaining cards
-     * @return array
+     *
+     * @return \Gamebetr\Cards\CardInterface[]
      */
     public function getRemainingCards() : array
     {
@@ -131,7 +151,8 @@ class Deck
 
     /**
      * Get dealt cards
-     * @return array
+     *
+     * @return \Gamebetr\Cards\CardInterface[]
      */
     public function getDealtCards() : array
     {
@@ -140,10 +161,21 @@ class Deck
 
     /**
      * Get burnt cards
-     * @return array
+     *
+     * @return \Gamebetr\Cards\CardInterface[]
      */
     public function getBurntCards() : array
     {
         return $this->burntCards;
+    }
+
+    /**
+     * Get provable
+     *
+     * @return Provable
+     */
+    public function getProvable() : Provable
+    {
+       return $this->provable;
     }
 }
