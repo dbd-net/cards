@@ -60,22 +60,6 @@ interface CardInterface
     public const TYPE_PROVABLE = -100;
 
     /**
-     * Create a Card.
-     *
-     * @param int $faceId
-     *   The Card face value or a provable random roll.
-     * @param int $suitId
-     *   The Card suit value or a provable type.
-     *
-     * @return Card
-     *   The created Card.
-     */
-    public static function init(
-        int $faceId,
-        int $suitId = self::TYPE_PROVABLE
-    ): Card;
-
-    /**
      * Cast the Card to a usable string.
      *
      * @return string
@@ -152,7 +136,7 @@ interface CardInterface
     /**
      * Compare a Card to this one for higher rank (and suit).
      *
-     * @param Card $card
+     * @param CardInterface $card
      *   The Card to compare ranks against.
      * @param bool $useSuitValue
      *   TRUE to factor suit order into the comparison.
@@ -160,7 +144,7 @@ interface CardInterface
      * @return bool
      *   TRUE if if this Card is higher ranked than the given Card.
      */
-    public function greaterThan(Card $card, bool $useSuitValue = false): bool;
+    public function greaterThan(CardInterface $card, bool $useSuitValue = false): bool;
 
     /**
      * Get the Card's ranking.
@@ -181,7 +165,7 @@ interface CardInterface
     /**
      * Compare a Card to this one for lower rank (and suit).
      *
-     * @param Card $card
+     * @param CardInterface $card
      *   The Card to compare ranks against.
      * @param bool $useSuitValue
      *   TRUE to factor suit order into the comparison.
@@ -189,12 +173,12 @@ interface CardInterface
      * @return bool
      *   TRUE if if this Card is lower ranked than the given Card.
      */
-    public function lessThan(Card $card, bool $useSuitValue = false): bool;
+    public function lessThan(CardInterface $card, bool $useSuitValue = false): bool;
 
     /**
      * Compare a Card to this one for equal rank (and suit).
      *
-     * @param Card $card
+     * @param CardInterface $card
      *   The Card to compare ranks against.
      * @param bool $useSuitValue
      *   TRUE to factor suit order into the comparison.
@@ -202,7 +186,7 @@ interface CardInterface
      * @return bool
      *   TRUE if the cards are the same, FALSE otherwise.
      */
-    public function equalTo(Card $card, bool $useSuitValue = false): bool;
+    public function equalTo(CardInterface $card, bool $useSuitValue = false): bool;
 
     /**
      * Get the original value that was passed in as the face.

@@ -185,9 +185,17 @@ class Card implements CardInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Create a Card.
+     *
+     * @param int $faceId
+     *   The Card face value or a provable random roll.
+     * @param int $suitId
+     *   The Card suit value or a provable type.
+     *
+     * @return CardInterface
+     *   The created Card.
      */
-    public static function init(int $faceId, int $suitId = self::TYPE_PROVABLE): Card
+    public static function init(int $faceId, int $suitId = self::TYPE_PROVABLE): CardInterface
     {
         return new static($faceId, $suitId);
     }
@@ -239,9 +247,13 @@ class Card implements CardInterface
     {
         if ($this->isJoker()) {
             return 0;
-        } elseif ($this->isRoyalty()) {
+        }
+
+        if ($this->isRoyalty()) {
             return 10;
-        } elseif ($this->isAce()) {
+        }
+
+        if ($this->isAce()) {
             return 11;
         }
 
@@ -283,7 +295,7 @@ class Card implements CardInterface
     /**
      * {@inheritdoc}
      */
-    public function greaterThan(Card $card, bool $useSuitValue = false): bool
+    public function greaterThan(CardInterface $card, bool $useSuitValue = false): bool
     {
         return $this->compare($card, $useSuitValue) === 1;
     }
@@ -333,7 +345,7 @@ class Card implements CardInterface
     /**
      * {@inheritdoc}
      */
-    public function lessThan(Card $card, bool $useSuitValue = false): bool
+    public function lessThan(CardInterface $card, bool $useSuitValue = false): bool
     {
         return $this->compare($card, $useSuitValue) === -1;
     }
@@ -341,7 +353,7 @@ class Card implements CardInterface
     /**
      * {@inheritdoc}
      */
-    public function equalTo(Card $card, bool $useSuitValue = false): bool
+    public function equalTo(CardInterface $card, bool $useSuitValue = false): bool
     {
         return $this->compare($card, $useSuitValue) === 0;
     }
@@ -349,7 +361,7 @@ class Card implements CardInterface
     /**
      * Compares a Card against this Card for equality.
      *
-     * @param Card $card
+     * @param CardInterface $card
      *   The Card to compare against.
      * @param bool $useSuitValue
      *   TRUE to factor in suits when comparing equal Cards.
@@ -357,7 +369,7 @@ class Card implements CardInterface
      * @return int
      *   -1 if the Card is less than, 0 if it is the same, or 1 if it is greater than.
      */
-    protected function compare(Card $card, bool $useSuitValue = false): int
+    protected function compare(CardInterface $card, bool $useSuitValue = false): int
     {
         $comp = $this->rank() <=> $card->rank();
         if ($comp === 0 && $useSuitValue) {
